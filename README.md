@@ -40,13 +40,17 @@ We'll start by conducting recon of our target, scanning for open ports and servi
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/9b742d67-b0ad-49bf-b5d3-2f2da1ca8ea9)
 
 7. Explore the directories to see if we can find anything interesting.
-8. /content/inc looks interesting. It lists a bunch of different files and folders that we can explore further. The files lastest.txt and the folder mysql_backup/ look particularly intriguing.
+
+8. **/content/inc** looks interesting. It lists a bunch of different files and folders that we can explore further. The files lastest.txt and the folder mysql_backup/ look particularly intriguing.
    
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/4c4837d4-fe55-4f61-9dfa-c838a04b6d4c)
 
 10. Open lastest.txt, and you'll see that it contains the text "1.5.1", which appears to confirm that SweetRice 1.5.1 is, in fact, the version this site uses.
+
 11. Next, click on the folder mysql_backup/
+
 12. This folder contains a file mysql_bakup_20191129023059-1.5.1.sql. Download this file and open it in a text editor to see what information it contains.
+
 13. Towards the bottom of the file, you'll notice there are some SQL commands that contain a username and password:
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/a817f1bb-6952-4a27-bed8-759123224766)
@@ -71,8 +75,62 @@ We'll start by conducting recon of our target, scanning for open ports and servi
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/b24300c4-d8d3-4130-94c4-15488e5323ab)
 
+18. Conduct some additional recon now that we've logged into the site. Click around and try to find anything interesting.
+    * One thing of interest is the **Ads** page, which will let us insert code. We might be able to use this to upload a reverse shell.
+   
+## Step 2: Exploitation
+1. Now we'll create a reverse shell using the pentestmonkey php reverse shell located here: https://github.com/pentestmonkey/php-reverse-shell
 
+2. Replace the IP in the reverse shell code with your attacking machine's IP, and replace the port with the port that you want to set up your netcat listener on:
 
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/812aa2fd-9983-49a9-b878-3a335b044ffe)
+
+3. Copy and paste the reverse shell code into the "Ads code" box. Give it whatever name you want, then click "Done."
+   
+4. Now, when you navigate to the \<target IP\>/content/inc page, you'll notice there's an **ads/** folder there.
+   
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/46a9c8b6-999c-491a-9d48-f55e5d2e142e)
+
+5. Open the **ads/** folder, and your shell will be in there.
+
+6. In order to catch this shell, we'll first need to start a netcat listener on our attacking machine.
+    * Open another command line terminal and start a listener using the following command: `nc -lvnp 1234`
+    * In our case, 1234 is the port we entered into our reverse shell code, so it's the same port we'll use for our listener.
+  
+7. Once the listener is started, click on the .php shell file you created.
+
+8. Look at your listener and you'll see that it has established a connection!
+    * If you're not getting a connection, make sure you entered the correct IP for your attacking machine into the reverse shell code you uploaded, as well as the same port that you're using for your listener.
+  
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/b07c31db-5d09-4c27-9a61-0576af5ca822)
+
+9. We now have user-level access to the system as the user **www-data**. Confirm this by typing the `whoami` command.
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/1bdf50c3-2d41-48ff-a229-ce6414de0bd9)
+
+### Step 2.1: Find the user flag
+1. Try to locate the flag using the `locate`command: `locate user.txt 2>/dev/null`
+    * This will search the file system for "user.txt"
+    * The "2>/dev/null" will ensure no errors get returned in the results, and will make the results much easier to search through
+
+2. We found the flag in the folder /home/itguy
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/216da661-44d2-4e92-8b6c-4ea373ee684d)
+
+3. Use the `cat` command to read the contents of the file.
+
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/ceec2ba2-3548-4ddb-ae4c-d5ae7c203470)
+
+4. Congratulations! You found the user flag! Now it's time to escalate our privileges to root to find the root flag.
+
+## Step 3: Escalate Privileges
+1. I tried searching for the root flag using the `locate`command, but no luck.
+2. Our next step is to see which commands we have permission to run as sudo. For this, we'll use the command: `sudo -l`
+    * The `sudo -l` command shows us all commands that our current user has permission to run as sudo
+        
+![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/87285be0-397f-4773-a957-2094060f1412)
+ 
+3. The highlighted portion of the results above are the main thing of interest to us. 
 
 
 
