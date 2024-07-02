@@ -34,14 +34,14 @@ We'll start by conducting recon of our target, scanning for open ports and servi
     * It turns out ExploitDB has a couple of exploits listed for SweetRice 1.5.1, including #40176 - Arbitrary File Upload (https://www.exploit-db.com/exploits/40716)
     * We can't do much with this information yet, but it's good to be aware of for later.
   
-6. Let's try to further enumerate directories using \<target IP\>/content as our url: `gobuster dir -u 10.10.211.117/content -w /usr/share/wordlists/dirb/common.txt`
+6. Let's try to further enumerate directories using **\<target IP\>/content** as our url: `gobuster dir -u 10.10.211.117/content -w /usr/share/wordlists/dirb/common.txt`
     * Now we've found some additional directories that we can explore.
       
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/9b742d67-b0ad-49bf-b5d3-2f2da1ca8ea9)
 
 7. Explore the directories to see if we can find anything interesting.
 
-8. **/content/inc** looks interesting. It lists a bunch of different files and folders that we can explore further. The files lastest.txt and the folder mysql_backup/ look particularly intriguing.
+8. **/content/inc** looks interesting. It lists a bunch of different files and folders that we can explore further. The files **lastest.txt** and the folder **mysql_backup/** look particularly intriguing.
    
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/4c4837d4-fe55-4f61-9dfa-c838a04b6d4c)
 
@@ -55,19 +55,21 @@ We'll start by conducting recon of our target, scanning for open ports and servi
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/a817f1bb-6952-4a27-bed8-759123224766)
 
-    * This isn't the actual password, but appears to be a hashed value of a password, so we'll need to crack it in order to find the actual password.
+This isn't the actual password, but appears to be a hashed value of a password. So we'll need to crack it in order to find the actual password.
 
 14. We'll use [crackstation.net](https://crackstation.net/) to crack it.
+
     * Navigate to the Crackstation website.
     * Paste the hash value into the box.
-    * Then confirm you're not a robot and click "Crack Hashes."
+    * Then confirm you're not a robot and click "Crack Hashes." (If you are a robot, sorry, I can't help you.)
    
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/4d27c315-f975-4d19-9f69-3dcc0238f479)
 
-    * Crackstation shows that it's an MD5 hash and cracks it successfully.
+Crackstation shows that it's an MD5 hash and cracks it successfully.
 
-15. Now have have a username (manager), and a password that we cracked using crackstation.
-16. Looking through the other directories we enumerate earlier, **/content/as** is a login page. Enter the credentials there.
+15. Now we have a username ("manager"), and a password that we cracked using crackstation.
+    
+16. Looking through the other directories we enumerated earlier, **/content/as** is a login page. Enter the credentials there.
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/df89be5e-d8a6-4908-9d20-476e61d132c4)
 
@@ -87,7 +89,7 @@ We'll start by conducting recon of our target, scanning for open ports and servi
 
 3. Copy and paste the reverse shell code into the "Ads code" box. Give it whatever name you want, then click "Done."
    
-4. Now, when you navigate to the \<target IP\>/content/inc page, you'll notice there's an **ads/** folder there.
+4. Now, when you navigate to the **\<target IP\>/content/inc** page, you'll notice there's an **ads/** folder there.
    
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/46a9c8b6-999c-491a-9d48-f55e5d2e142e)
 
@@ -113,7 +115,7 @@ We'll start by conducting recon of our target, scanning for open ports and servi
     * This will search the file system for "user.txt"
     * The "2>/dev/null" will ensure no errors get returned in the results, and will make the results much easier to search through
 
-2. We found the flag in the folder /home/itguy
+2. We found the flag in the folder **/home/itguy**.
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/216da661-44d2-4e92-8b6c-4ea373ee684d)
 
@@ -142,7 +144,7 @@ We'll start by conducting recon of our target, scanning for open ports and servi
 
 ![image](https://github.com/fatmagician/LazyAdmin/assets/51951855/a6cf53d3-59dd-4e50-a92a-490126d2b690)
 
-    * It looks like copy.sh is, itself, a reverse shell.
+It looks like copy.sh is, itself, a reverse shell.
 
 7. Now we'll need to edit copy.sh so that it connects to our attacking machine's IP and a port of our choice.
     * We're not able to use `nano` or `vim` to edit the file, but we can use `echo` to write to it.
@@ -177,6 +179,6 @@ Congratulations! You've completed the LazyAdmin challenge on TryHackMe!
 
 An optional next step is do your own writeup of this challenge. This will help with your writing and reporting skills, and will also help you learn the material more deeply. 
 
-
+Nice work, and thanks for reading!
 
 
